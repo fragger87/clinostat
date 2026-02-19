@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "clinostat-sim"
+version = "0.1.0"
+description = "3D Clinostat Microgravity Simulator"
+authors = []
+packages = [{include = "app"}]
+
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
+numpy = "^1.24"
+matplotlib = "^3.7"
+click = "^8.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
