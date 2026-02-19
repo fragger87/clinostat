@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from app.engine import SimResult, SweepResult, constant_rpm, simulate, sweep
+from app.export import export_sweep_xlsx
 from app.lattice import fibonacci_hemisphere
 from app.visualize import (
     plot_hemisphere_distribution,
@@ -74,8 +75,9 @@ def sim(inner, outer, duration, dt, save):
 @click.option("--rpm-step", type=float, default=0.125, show_default=True, help="RPM step size.")
 @click.option("--duration", type=float, default=3000, show_default=True, help="Duration in seconds per simulation.")
 @click.option("--dt", type=float, default=0.1, show_default=True, help="Timestep in seconds.")
-@click.option("--save", type=str, default=None, help="Directory to save figures (shows interactively if omitted).")
-def sweep_cmd(rpm_min, rpm_max, rpm_step, duration, dt, save):
+@click.option("--save", type=str, default=None, help="Directory to save figures and XLSX (shows interactively if omitted).")
+@click.option("--xlsx", "xlsx_path", type=str, default=None, help="Path to save results as .xlsx (default: <save>/sweep_results.xlsx when --save is set).")
+def sweep_cmd(rpm_min, rpm_max, rpm_step, duration, dt, save, xlsx_path):
     """Sweep a grid of RPM combinations and generate heatmaps."""
     inner_rpms = np.arange(rpm_min, rpm_max + rpm_step / 2, rpm_step)
     outer_rpms = np.arange(rpm_min, rpm_max + rpm_step / 2, rpm_step)
@@ -110,6 +112,13 @@ def sweep_cmd(rpm_min, rpm_max, rpm_step, duration, dt, save):
         f"Outer={result.outer_rpms[max_dist_idx[1]]:.3f} RPM, "
         f"Score={result.distributions[max_dist_idx]}"
     )
+
+    # Export XLSX
+    if xlsx_path is None and save is not None:
+        xlsx_path = os.path.join(save, "sweep_results.xlsx")
+    if xlsx_path is not None:
+        saved = export_sweep_xlsx(result, xlsx_path)
+        click.echo(f"\n  Saved XLSX: {saved}")
 
     click.echo("\nGenerating heatmaps...")
     fig = plot_sweep_heatmaps(result)
