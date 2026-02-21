@@ -65,7 +65,15 @@ cd clinostat-sim
 poetry install
 ```
 
-This creates a virtual environment and installs all dependencies (`numpy`, `matplotlib`, `click`).
+This creates a virtual environment and installs all dependencies (`numpy`, `matplotlib`, `click`, `openpyxl`).
+
+**Windows note:** If you encounter issues with Poetry installation, you can use pip directly:
+
+```bash
+python -m venv .venv
+.venv\Scripts\python -m pip install --upgrade pip
+.venv\Scripts\python -m pip install numpy matplotlib click openpyxl
+```
 
 ## Usage
 
@@ -75,8 +83,14 @@ All commands are run from the project root directory.
 
 Simulate one inner/outer RPM pair and visualize the results:
 
+**Using Poetry:**
 ```bash
 poetry run python -m app sim --inner 0.25 --outer 4.0
+```
+
+**Windows (direct venv):**
+```bash
+.venv\Scripts\python -m app sim --inner 0.25 --outer 4.0
 ```
 
 **Options:**
@@ -95,6 +109,11 @@ poetry run python -m app sim --inner 0.25 --outer 4.0
 poetry run python -m app sim --inner 0.25 --outer 4.0 --duration 3000 --save ./output
 ```
 
+**Windows:**
+```bash
+.venv\Scripts\python -m app sim --inner 0.25 --outer 4.0 --duration 3000 --save ./output
+```
+
 This generates three plots:
 - `trajectory_3d.png` — 3D path of the acceleration vector
 - `hemisphere_distribution.png` — which Fibonacci lattice points were hit
@@ -104,8 +123,14 @@ This generates three plots:
 
 Sweep a grid of inner/outer RPM combinations to find optimal settings:
 
+**Using Poetry:**
 ```bash
 poetry run python -m app sweep-cmd --rpm-min 0.5 --rpm-max 4.0 --rpm-step 0.25
+```
+
+**Windows (direct venv):**
+```bash
+.venv\Scripts\python -m app sweep-cmd --rpm-min 0.5 --rpm-max 4.0 --rpm-step 0.25
 ```
 
 **Options:**
@@ -150,17 +175,95 @@ poetry run python -m app sim --inner 0.25 --outer 4.0 --save ./output
 
 ### Windows
 
-Use PowerShell or Command Prompt. Replace `python3` with `python` in all commands:
+Use PowerShell or Command Prompt. Replace `python3` with `python` in all commands.
+
+**Recommended approach** — use the virtual environment directly:
 
 ```powershell
-poetry run python -m app sim --inner 0.25 --outer 4.0
+.venv\Scripts\python -m app sim --inner 0.25 --outer 4.0
 ```
 
-If `poetry` is not recognized after installation, restart your terminal or use the full path:
+If using Poetry and it's not recognized after installation, restart your terminal or add Poetry to PATH:
 
 ```powershell
-%APPDATA%\Python\Scripts\poetry run python -m app sim --inner 0.25 --outer 4.0
+$env:PATH += ";$env:APPDATA\Python\Scripts"
 ```
+
+Or use the full path:
+
+```powershell
+& "$env:APPDATA\Python\Scripts\poetry" run python -m app sim --inner 0.25 --outer 4.0
+```
+
+## Troubleshooting
+
+### Poetry installation fails or dependencies won't install
+
+**Issue**: `poetry install` exits with an error code, or packages appear to install but aren't actually available.
+
+**Solution**: Use pip directly to install dependencies:
+
+```bash
+# Windows
+python -m venv .venv
+.venv\Scripts\python -m pip install --upgrade pip
+.venv\Scripts\python -m pip install numpy matplotlib click openpyxl
+
+# macOS/Linux
+python3 -m venv .venv
+.venv/bin/python -m pip install --upgrade pip
+.venv/bin/python -m pip install numpy matplotlib click openpyxl
+```
+
+### Poetry environment contains invalid distribution
+
+**Issue**: Error message about "invalid distribution" or corrupted pip installation.
+
+**Solution**: Remove the corrupted virtual environment and recreate:
+
+```bash
+# Windows
+rm -rf .venv
+python -m venv .venv
+
+# macOS/Linux
+rm -rf .venv
+python3 -m venv .venv
+```
+
+Then install dependencies using pip as shown above.
+
+### ModuleNotFoundError when running the app
+
+**Issue**: `ModuleNotFoundError: No module named 'numpy'` (or other packages)
+
+**Solution**: Ensure you're using the virtual environment's Python interpreter:
+
+```bash
+# Windows - use full path to venv Python
+.venv\Scripts\python -m app sim --inner 0.25 --outer 4.0
+
+# macOS/Linux
+.venv/bin/python -m app sim --inner 0.25 --outer 4.0
+```
+
+### Poetry command not found
+
+**Issue**: `poetry: command not found` or `'poetry' is not recognized`
+
+**Solution**:
+
+**Windows**: Add Poetry to your PATH or use the full path:
+```powershell
+& "$env:APPDATA\Python\Scripts\poetry" --version
+```
+
+**macOS/Linux**: Add Poetry to your shell configuration:
+```bash
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+Then reload your shell or run `source ~/.bashrc` (or `~/.zshrc` on macOS).
 
 ## Extending with custom speed profiles
 
