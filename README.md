@@ -125,28 +125,31 @@ Sweep a grid of inner/outer RPM combinations to find optimal settings:
 
 **Using Poetry:**
 ```bash
-poetry run python -m app sweep-cmd --rpm-min 0.5 --rpm-max 4.0 --rpm-step 0.25
+poetry run python -m app sweep-cmd --inner-min 0.5 --inner-max 4.0 --inner-step 0.25 --outer-min 0.5 --outer-max 4.0 --outer-step 0.25
 ```
 
 **Windows (direct venv):**
 ```bash
-.venv\Scripts\python -m app sweep-cmd --rpm-min 0.5 --rpm-max 4.0 --rpm-step 0.25
+.venv\Scripts\python -m app sweep-cmd --inner-min 0.5 --inner-max 4.0 --inner-step 0.25 --outer-min 0.5 --outer-max 4.0 --outer-step 0.25
 ```
 
 **Options:**
 
 | Flag | Default | Description |
 |---|---|---|
-| `--rpm-min` | 0.125 | Minimum RPM for both axes |
-| `--rpm-max` | 4.0 | Maximum RPM for both axes |
-| `--rpm-step` | 0.125 | RPM increment |
+| `--inner-min` | 0.125 | Minimum inner frame RPM |
+| `--inner-max` | 4.0 | Maximum inner frame RPM |
+| `--inner-step` | 0.125 | Inner frame RPM increment |
+| `--outer-min` | 0.125 | Minimum outer frame RPM |
+| `--outer-max` | 4.0 | Maximum outer frame RPM |
+| `--outer-step` | 0.125 | Outer frame RPM increment |
 | `--duration` | 3000 | Duration per simulation in seconds |
 | `--dt` | 0.1 | Timestep in seconds |
 | `--save DIR` | *(none)* | Save heatmap to directory |
 
 This generates `sweep_heatmaps.png` — side-by-side magnitude and distribution score heatmaps, and prints the best RPM combinations to the terminal.
 
-> **Note:** A full sweep with default settings (32x32 = 1024 combinations) can take 15–20 minutes. Use a larger `--rpm-step` or smaller `--rpm-max` for quicker runs.
+> **Note:** A full sweep with default settings (32x32 = 1024 combinations) can take 15–20 minutes. Use larger step sizes or smaller ranges for quicker runs.
 
 ## Building a Windows executable
 
@@ -199,7 +202,7 @@ You can now run the program without Python or any dependencies installed:
 
 ```powershell
 .\dist\clinostat-sim.exe sim --inner 0.25 --outer 4.0
-.\dist\clinostat-sim.exe sweep-cmd --rpm-min 0.5 --rpm-max 4.0 --rpm-step 0.25
+.\dist\clinostat-sim.exe sweep-cmd --inner-min 0.5 --inner-max 4.0 --inner-step 0.25 --outer-min 0.5 --outer-max 4.0 --outer-step 0.25
 ```
 
 ### 5. Distribution

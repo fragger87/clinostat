@@ -70,21 +70,25 @@ def sim(inner, outer, duration, dt, save):
 
 
 @main.command()
-@click.option("--rpm-min", type=float, default=0.125, show_default=True, help="Minimum RPM.")
-@click.option("--rpm-max", type=float, default=4.0, show_default=True, help="Maximum RPM.")
-@click.option("--rpm-step", type=float, default=0.125, show_default=True, help="RPM step size.")
+@click.option("--inner-min", type=float, default=0.125, show_default=True, help="Minimum inner frame RPM.")
+@click.option("--inner-max", type=float, default=4.0, show_default=True, help="Maximum inner frame RPM.")
+@click.option("--inner-step", type=float, default=0.125, show_default=True, help="Inner frame RPM step size.")
+@click.option("--outer-min", type=float, default=0.125, show_default=True, help="Minimum outer frame RPM.")
+@click.option("--outer-max", type=float, default=4.0, show_default=True, help="Maximum outer frame RPM.")
+@click.option("--outer-step", type=float, default=0.125, show_default=True, help="Outer frame RPM step size.")
 @click.option("--duration", type=float, default=3000, show_default=True, help="Duration in seconds per simulation.")
 @click.option("--dt", type=float, default=0.1, show_default=True, help="Timestep in seconds.")
 @click.option("--save", type=str, default=None, help="Directory to save figures and XLSX (shows interactively if omitted).")
 @click.option("--xlsx", "xlsx_path", type=str, default=None, help="Path to save results as .xlsx (default: <save>/sweep_results.xlsx when --save is set).")
-def sweep_cmd(rpm_min, rpm_max, rpm_step, duration, dt, save, xlsx_path):
+def sweep_cmd(inner_min, inner_max, inner_step, outer_min, outer_max, outer_step, duration, dt, save, xlsx_path):
     """Sweep a grid of RPM combinations and generate heatmaps."""
-    inner_rpms = np.arange(rpm_min, rpm_max + rpm_step / 2, rpm_step)
-    outer_rpms = np.arange(rpm_min, rpm_max + rpm_step / 2, rpm_step)
+    inner_rpms = np.arange(inner_min, inner_max + inner_step / 2, inner_step)
+    outer_rpms = np.arange(outer_min, outer_max + outer_step / 2, outer_step)
     total = len(inner_rpms) * len(outer_rpms)
 
     click.echo(f"Sweeping {len(inner_rpms)}x{len(outer_rpms)} = {total} combinations")
-    click.echo(f"  RPM range: {rpm_min} to {rpm_max}, step {rpm_step}")
+    click.echo(f"  Inner RPM range: {inner_min} to {inner_max}, step {inner_step}")
+    click.echo(f"  Outer RPM range: {outer_min} to {outer_max}, step {outer_step}")
     click.echo(f"  Duration: {duration}s, dt: {dt}s")
 
     def progress(current, total):
