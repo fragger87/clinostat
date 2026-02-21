@@ -49,7 +49,7 @@ def sim(inner, outer, duration, dt, save):
     result = simulate(constant_rpm(inner), constant_rpm(outer), duration, dt)
 
     click.echo(f"\nResults:")
-    click.echo(f"  Magnitude (time-avg accel): {result.magnitude:.6f} m/s²")
+    click.echo(f"  Magnitude (time-avg accel): {result.magnitude:.6f} m/s^2")
     click.echo(f"  Distribution score:         {result.dist_score} / 1000")
 
     click.echo("\nGenerating plots...")
@@ -104,7 +104,7 @@ def sweep_cmd(rpm_min, rpm_max, rpm_step, duration, dt, save, xlsx_path):
     click.echo(
         f"  Inner={result.inner_rpms[min_mag_idx[0]]:.3f} RPM, "
         f"Outer={result.outer_rpms[min_mag_idx[1]]:.3f} RPM, "
-        f"Magnitude={result.magnitudes[min_mag_idx]:.6f} m/s²"
+        f"Magnitude={result.magnitudes[min_mag_idx]:.6f} m/s^2"
     )
     click.echo(f"\nBest by distribution (highest):")
     click.echo(

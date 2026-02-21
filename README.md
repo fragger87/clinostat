@@ -148,6 +148,114 @@ This generates `sweep_heatmaps.png` — side-by-side magnitude and distribution 
 
 > **Note:** A full sweep with default settings (32x32 = 1024 combinations) can take 15–20 minutes. Use a larger `--rpm-step` or smaller `--rpm-max` for quicker runs.
 
+## Building a Windows executable
+
+To create a standalone Windows executable (.exe) that can run without Python installed:
+
+### 1. Install PyInstaller
+
+First, activate your virtual environment and install PyInstaller:
+
+**Using Poetry:**
+```powershell
+poetry add --group dev pyinstaller
+```
+
+**Using pip directly:**
+```powershell
+.venv\Scripts\python -m pip install pyinstaller
+```
+
+### 2. Build the executable
+
+From the project root directory, run:
+
+**Using Poetry:**
+```powershell
+poetry run pyinstaller --onefile --name clinostat-sim --console app\__main__.py
+```
+
+**Using venv directly:**
+```powershell
+.venv\Scripts\python -m PyInstaller --onefile --name clinostat-sim --console app\__main__.py
+```
+
+**Build options explained:**
+- `--onefile` — packages everything into a single .exe file
+- `--name clinostat-sim` — names the executable `clinostat-sim.exe`
+- `--console` — keeps the console window (required for CLI apps)
+- `app\__main__.py` — the entry point of the application
+
+### 3. Find the executable
+
+The built executable will be located at:
+```
+dist\clinostat-sim.exe
+```
+
+### 4. Run the executable
+
+You can now run the program without Python or any dependencies installed:
+
+```powershell
+.\dist\clinostat-sim.exe sim --inner 0.25 --outer 4.0
+.\dist\clinostat-sim.exe sweep-cmd --rpm-min 0.5 --rpm-max 4.0 --rpm-step 0.25
+```
+
+### 5. Distribution
+
+The `clinostat-sim.exe` file in the `dist` folder is completely standalone and can be:
+- Copied to any Windows machine (no Python required)
+- Distributed to users who don't have Python installed
+- Run from any directory
+
+**File size note:** The executable will be 15–25 MB because it bundles Python and all dependencies.
+
+### Advanced options
+
+**Reduce executable size** by excluding unnecessary modules:
+```powershell
+poetry run pyinstaller --onefile --name clinostat-sim --console --exclude-module tkinter app\__main__.py
+```
+
+**Add an icon** to the executable:
+```powershell
+poetry run pyinstaller --onefile --name clinostat-sim --console --icon=icon.ico app\__main__.py
+```
+
+**Hide console window** (not recommended for CLI apps, but useful for GUI wrappers):
+```powershell
+poetry run pyinstaller --onefile --name clinostat-sim --noconsole app\__main__.py
+```
+
+### Troubleshooting the build
+
+**Issue:** `ModuleNotFoundError` when running the .exe
+
+**Solution:** PyInstaller may miss some dynamic imports. Create a `.spec` file for more control:
+
+1. Generate a spec file:
+   ```powershell
+   poetry run pyi-makespec --onefile --name clinostat-sim app\__main__.py
+   ```
+
+2. Edit `clinostat-sim.spec` and add hidden imports:
+   ```python
+   hiddenimports=['numpy', 'matplotlib', 'click', 'openpyxl']
+   ```
+
+3. Build using the spec file:
+   ```powershell
+   poetry run pyinstaller clinostat-sim.spec
+   ```
+
+**Issue:** Antivirus flags the executable
+
+**Solution:** This is a common false positive with PyInstaller executables. You can:
+- Add an exception in your antivirus software
+- Sign the executable with a code signing certificate (for distribution)
+- Build with `--debug all` to help antivirus software analyze the file
+
 ## Platform notes
 
 ### macOS

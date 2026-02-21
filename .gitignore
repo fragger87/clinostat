@@ -1,4 +1,6 @@
-/output/
-/.claude/
-/.venv/
-/.idea/
+/output
+/.claude
+/.venv
+/.idea
+/build
+/dist
