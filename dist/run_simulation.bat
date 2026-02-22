@@ -21,6 +21,10 @@ REM Prompt for duration
 set /p DURATION="Duration in seconds [3000]: "
 if "%DURATION%"=="" set DURATION=3000
 
+REM Prompt for sample radius
+set /p RADIUS="Sample radius in metres [0.01]: "
+if "%RADIUS%"=="" set RADIUS=0.01
+
 REM Prompt for output folder
 set /p OUTPUT="Output folder [output]: "
 if "%OUTPUT%"=="" set OUTPUT=output
@@ -31,11 +35,12 @@ echo Running simulation with:
 echo   Inner frame: %INNER% RPM
 echo   Outer frame: %OUTER% RPM
 echo   Duration: %DURATION% seconds
+echo   Sample radius: %RADIUS% m
 echo   Output folder: %OUTPUT%
 echo ========================================
 echo.
 
-clinostat-sim.exe sim --inner %INNER% --outer %OUTER% --duration %DURATION% --save %OUTPUT%
+clinostat-sim.exe sim --inner %INNER% --outer %OUTER% --duration %DURATION% --radius %RADIUS% --save %OUTPUT%
 
 echo.
 echo ========================================
@@ -44,6 +49,9 @@ echo Check the "%OUTPUT%" folder for results:
 echo   - trajectory_3d.png
 echo   - hemisphere_distribution.png
 echo   - time_series.png
+echo   - time_averaged_acceleration.png
+echo   - time_avg_gravitational.png
+echo   - time_avg_nongravitational.png
 echo ========================================
 echo.
 pause

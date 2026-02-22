@@ -27,12 +27,16 @@ Parameters:
   - Inner frame RPM (default: 0.25)
   - Outer frame RPM (default: 4.0)
   - Duration in seconds (default: 3000)
+  - Sample radius in metres (default: 0.01)
   - Output folder (default: output)
 
 Output files:
-  - trajectory_3d.png           3D path of acceleration vector
-  - hemisphere_distribution.png Fibonacci lattice coverage
-  - time_series.png             X, Y, Z acceleration over time
+  - trajectory_3d.png                3D path of acceleration vector
+  - hemisphere_distribution.png      Fibonacci lattice coverage
+  - time_series.png                  X, Y, Z acceleration over time
+  - time_averaged_acceleration.png   Convergence of time-averaged accel magnitude
+  - time_avg_gravitational.png       Time-averaged gravitational accel (X, Y, Z, magnitude)
+  - time_avg_nongravitational.png    Time-averaged non-gravitational accel (X, Y, Z, magnitude)
 
 OPTION 2: RPM Sweep (run_sweep.bat)
 ------------------------------------

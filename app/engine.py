@@ -139,6 +139,49 @@ def simulate(
     )
 
 
+def compute_nongrav_accel(
+    inner_speed: SpeedFunction,
+    outer_speed: SpeedFunction,
+    t: np.ndarray,
+    radius: float,
+) -> np.ndarray:
+    """Compute non-gravitational (centripetal) acceleration on a sample point.
+
+    The sample is assumed to be at [0, 0, radius] in the inner frame.
+    Computes the lab-frame acceleration of the sample via numerical
+    differentiation, then transforms it into the rotating sample frame.
+
+    Args:
+        inner_speed: Speed function for the inner frame.
+        outer_speed: Speed function for the outer frame.
+        t: Time array (uniform spacing assumed).
+        radius: Distance of the sample from the rotation center (metres).
+
+    Returns:
+        Non-gravitational acceleration in the sample frame, shape (N, 3).
+    """
+    inner_angles = integrate_angles(inner_speed, t)
+    outer_angles = integrate_angles(outer_speed, t)
+
+    R_inner = _rotation_matrices_x(inner_angles)
+    R_outer = _rotation_matrices_z(outer_angles)
+
+    r_sample = np.array([0.0, 0.0, radius])
+
+    # Position in lab frame: p(t) = R_outer(t) @ R_inner(t) @ r_sample
+    pos = np.einsum("nij,njk,k->ni", R_outer, R_inner, r_sample)
+
+    # Lab-frame acceleration via second numerical derivative
+    dt = t[1] - t[0]
+    acc_lab = np.gradient(np.gradient(pos, dt, axis=0), dt, axis=0)
+
+    # Transform to rotating sample frame: (R_outer @ R_inner)^T @ acc_lab
+    R_combined = np.einsum("nij,njk->nik", R_outer, R_inner)
+    acc_sample = np.einsum("nji,nj->ni", R_combined, acc_lab)
+
+    return acc_sample
+
+
 def sweep(
     inner_rpms: np.ndarray,
     outer_rpms: np.ndarray,

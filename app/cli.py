@@ -9,12 +9,14 @@ import click
 import matplotlib.pyplot as plt
 import numpy as np
 
-from app.engine import SimResult, SweepResult, constant_rpm, simulate, sweep
+from app.engine import SimResult, SweepResult, compute_nongrav_accel, constant_rpm, simulate, sweep
 from app.export import export_sweep_xlsx
 from app.lattice import fibonacci_hemisphere
 from app.visualize import (
     plot_hemisphere_distribution,
     plot_sweep_heatmaps,
+    plot_time_avg_gravitational,
+    plot_time_avg_nongravitational,
     plot_time_averaged_acceleration,
     plot_time_series,
     plot_trajectory_3d,
@@ -43,11 +45,15 @@ def main():
 @click.option("--duration", type=float, default=3000, show_default=True, help="Duration in seconds.")
 @click.option("--dt", type=float, default=0.1, show_default=True, help="Timestep in seconds.")
 @click.option("--save", type=str, default=None, help="Directory to save figures (shows interactively if omitted).")
-def sim(inner, outer, duration, dt, save):
+@click.option("--radius", type=float, default=0.01, show_default=True, help="Sample offset from rotation center in metres (for non-gravitational acceleration).")
+def sim(inner, outer, duration, dt, save, radius):
     """Run a single clinostat simulation for one RPM pair."""
     click.echo(f"Simulating: inner={inner} RPM, outer={outer} RPM, duration={duration}s, dt={dt}s")
 
-    result = simulate(constant_rpm(inner), constant_rpm(outer), duration, dt)
+    inner_speed = constant_rpm(inner)
+    outer_speed = constant_rpm(outer)
+    result = simulate(inner_speed, outer_speed, duration, dt)
+    nongrav = compute_nongrav_accel(inner_speed, outer_speed, result.t, radius)
 
     click.echo(f"\nResults:")
     click.echo(f"  Magnitude (time-avg accel): {result.magnitude:.6f} m/s^2")
@@ -60,11 +66,15 @@ def sim(inner, outer, duration, dt, save):
     fig2 = plot_hemisphere_distribution(result.accel, result.hit_counts, lattice)
     fig3 = plot_time_series(result.t, result.accel)
     fig4 = plot_time_averaged_acceleration(result.t, result.accel)
+    fig5 = plot_time_avg_gravitational(result.t, result.accel)
+    fig6 = plot_time_avg_nongravitational(result.t, nongrav)
 
     _save_or_show(fig1, save, "trajectory_3d.png")
     _save_or_show(fig2, save, "hemisphere_distribution.png")
     _save_or_show(fig3, save, "time_series.png")
     _save_or_show(fig4, save, "time_averaged_acceleration.png")
+    _save_or_show(fig5, save, "time_avg_gravitational.png")
+    _save_or_show(fig6, save, "time_avg_nongravitational.png")
 
     if save is None:
         plt.show()

@@ -102,6 +102,7 @@ poetry run python -m app sim --inner 0.25 --outer 4.0
 | `--duration` | 3000 | Simulation duration in seconds |
 | `--dt` | 0.1 | Timestep in seconds |
 | `--save DIR` | *(none)* | Save plots to directory instead of showing interactively |
+| `--radius` | 0.01 | Sample offset from rotation center in metres (for non-gravitational acceleration) |
 
 **Example — save plots to disk:**
 
@@ -114,10 +115,13 @@ poetry run python -m app sim --inner 0.25 --outer 4.0 --duration 3000 --save ./o
 .venv\Scripts\python -m app sim --inner 0.25 --outer 4.0 --duration 3000 --save ./output
 ```
 
-This generates three plots:
+This generates six plots:
 - `trajectory_3d.png` — 3D path of the acceleration vector
 - `hemisphere_distribution.png` — which Fibonacci lattice points were hit
 - `time_series.png` — X, Y, Z acceleration components over time
+- `time_averaged_acceleration.png` — convergence of the time-averaged acceleration magnitude
+- `time_avg_gravitational.png` — time-averaged gravitational acceleration (X, Y, Z and magnitude)
+- `time_avg_nongravitational.png` — time-averaged non-gravitational (centripetal) acceleration (X, Y, Z and magnitude)
 
 ### RPM sweep (heatmaps)
 
@@ -412,5 +416,6 @@ app/
   cli.py             # Click CLI (sim, sweep-cmd)
   engine.py          # Simulation core: rotation math, metrics, sweep
   lattice.py         # Fibonacci hemisphere lattice, distribution scoring
-  visualize.py       # Matplotlib plots (trajectory, hemisphere, time series, heatmaps)
+  export.py          # XLSX export for sweep results
+  visualize.py       # Matplotlib plots (trajectory, hemisphere, time series, time-averaged, heatmaps)
 ```

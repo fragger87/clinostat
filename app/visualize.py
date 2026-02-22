@@ -133,6 +133,61 @@ def plot_time_series(t: np.ndarray, accel: np.ndarray) -> Figure:
     return fig
 
 
+def _plot_time_avg_components(
+    t: np.ndarray, accel: np.ndarray, title: str,
+) -> Figure:
+    """Single plot of running cumulative average for X, Y, Z and magnitude."""
+    cumsum = np.cumsum(accel, axis=0)
+    counts = np.arange(1, len(accel) + 1).reshape(-1, 1)
+    running_avg = cumsum / counts
+    running_mag = np.linalg.norm(running_avg, axis=1)
+
+    step = max(1, len(t) // 10000)
+    ts = t[::step]
+    avg = running_avg[::step]
+    mag = running_mag[::step]
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(ts, avg[:, 0], linewidth=0.7, label=f"X (final: {running_avg[-1, 0]:.6f})")
+    ax.plot(ts, avg[:, 1], linewidth=0.7, label=f"Y (final: {running_avg[-1, 1]:.6f})")
+    ax.plot(ts, avg[:, 2], linewidth=0.7, label=f"Z (final: {running_avg[-1, 2]:.6f})")
+    ax.plot(ts, mag, linewidth=0.9, color="k", linestyle="--",
+            label=f"\u2016\u0101\u2016 (final: {running_mag[-1]:.6f})")
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("Acceleration (m/s²)")
+    ax.set_title(title)
+    ax.legend(fontsize=8)
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+    return fig
+
+
+def plot_time_avg_gravitational(t: np.ndarray, accel: np.ndarray) -> Figure:
+    """Running cumulative average of gravitational acceleration per axis + magnitude.
+
+    Args:
+        t: Time values, shape (N,).
+        accel: Gravitational acceleration vectors (rotated g), shape (N, 3).
+
+    Returns:
+        Matplotlib Figure with 4 subplots (X, Y, Z, magnitude).
+    """
+    return _plot_time_avg_components(t, accel, "Time-Averaged Gravitational Acceleration")
+
+
+def plot_time_avg_nongravitational(t: np.ndarray, nongrav_accel: np.ndarray) -> Figure:
+    """Running cumulative average of non-gravitational acceleration per axis + magnitude.
+
+    Args:
+        t: Time values, shape (N,).
+        nongrav_accel: Non-gravitational acceleration vectors, shape (N, 3).
+
+    Returns:
+        Matplotlib Figure with 4 subplots (X, Y, Z, magnitude).
+    """
+    return _plot_time_avg_components(t, nongrav_accel, "Time-Averaged Non-Gravitational Acceleration")
+
+
 def plot_time_averaged_acceleration(t: np.ndarray, accel: np.ndarray) -> Figure:
     """Plot the magnitude of the cumulative time-averaged acceleration vector.
 
@@ -161,7 +216,7 @@ def plot_time_averaged_acceleration(t: np.ndarray, accel: np.ndarray) -> Figure:
     fig, ax = plt.subplots(figsize=(10, 4))
     ax.plot(ts, mag, linewidth=0.8)
     ax.set_xlabel("Time (s)")
-    ax.set_ylabel("‖ā‖ (m/s²)")
+    ax.set_ylabel("Acceleration (m/s²)")
     ax.set_title("Time-Averaged Acceleration Magnitude")
     ax.axhline(y=running_mag[-1], color="r", linestyle="--", linewidth=0.8,
                label=f"Final: {running_mag[-1]:.4f} m/s²")
