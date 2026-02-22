@@ -133,6 +133,45 @@ def plot_time_series(t: np.ndarray, accel: np.ndarray) -> Figure:
     return fig
 
 
+def plot_time_averaged_acceleration(t: np.ndarray, accel: np.ndarray) -> Figure:
+    """Plot the magnitude of the cumulative time-averaged acceleration vector.
+
+    Shows how the effective gravity converges over time.
+
+    Args:
+        t: Time values, shape (N,).
+        accel: Acceleration vectors, shape (N, 3).
+
+    Returns:
+        Matplotlib Figure.
+    """
+    # Compute running cumulative mean of the acceleration vector
+    cumsum = np.cumsum(accel, axis=0)
+    counts = np.arange(1, len(accel) + 1).reshape(-1, 1)
+    running_avg = cumsum / counts
+
+    # Magnitude of the running average vector at each timestep
+    running_mag = np.linalg.norm(running_avg, axis=1)
+
+    # Subsample for plotting performance
+    step = max(1, len(t) // 10000)
+    ts = t[::step]
+    mag = running_mag[::step]
+
+    fig, ax = plt.subplots(figsize=(10, 4))
+    ax.plot(ts, mag, linewidth=0.8)
+    ax.set_xlabel("Time (s)")
+    ax.set_ylabel("‖ā‖ (m/s²)")
+    ax.set_title("Time-Averaged Acceleration Magnitude")
+    ax.axhline(y=running_mag[-1], color="r", linestyle="--", linewidth=0.8,
+               label=f"Final: {running_mag[-1]:.4f} m/s²")
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    fig.tight_layout()
+
+    return fig
+
+
 def plot_sweep_heatmaps(result: SweepResult) -> Figure:
     """Side-by-side heatmaps of magnitude and distribution score.
 

@@ -15,6 +15,7 @@ from app.lattice import fibonacci_hemisphere
 from app.visualize import (
     plot_hemisphere_distribution,
     plot_sweep_heatmaps,
+    plot_time_averaged_acceleration,
     plot_time_series,
     plot_trajectory_3d,
 )
@@ -58,10 +59,12 @@ def sim(inner, outer, duration, dt, save):
     fig1 = plot_trajectory_3d(result.accel)
     fig2 = plot_hemisphere_distribution(result.accel, result.hit_counts, lattice)
     fig3 = plot_time_series(result.t, result.accel)
+    fig4 = plot_time_averaged_acceleration(result.t, result.accel)
 
     _save_or_show(fig1, save, "trajectory_3d.png")
     _save_or_show(fig2, save, "hemisphere_distribution.png")
     _save_or_show(fig3, save, "time_series.png")
+    _save_or_show(fig4, save, "time_averaged_acceleration.png")
 
     if save is None:
         plt.show()
