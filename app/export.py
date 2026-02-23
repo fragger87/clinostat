@@ -1,7 +1,8 @@
-"""Export sweep results to XLSX files."""
+"""Export simulation results to XLSX and CSV files."""
 
 from __future__ import annotations
 
+import csv
 import os
 
 import numpy as np
@@ -163,3 +164,80 @@ def export_sweep_xlsx(result: SweepResult, path: str) -> str:
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
     wb.save(path)
     return os.path.abspath(path)
+
+
+def _write_csv(path: str, header: list[str], rows) -> str:
+    """Write rows to a CSV file and return its absolute path."""
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    with open(path, "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerows(rows)
+    return os.path.abspath(path)
+
+
+def export_sim_csv(
+    t: np.ndarray,
+    accel: np.ndarray,
+    nongrav: np.ndarray,
+    hit_counts: np.ndarray,
+    lattice: np.ndarray,
+    directory: str,
+) -> list[str]:
+    """Export single-simulation data to CSV files.
+
+    Creates three files in *directory*:
+      - acceleration.csv: time, accel_x, accel_y, accel_z
+      - nongrav_acceleration.csv: time, nongrav_x, nongrav_y, nongrav_z
+      - hemisphere_hits.csv: lattice_x, lattice_y, lattice_z, hit_count
+
+    Returns:
+        List of absolute paths of the written files.
+    """
+    saved: list[str] = []
+
+    # acceleration.csv
+    path = os.path.join(directory, "acceleration.csv")
+    rows = ((t[i], accel[i, 0], accel[i, 1], accel[i, 2]) for i in range(len(t)))
+    saved.append(_write_csv(path, ["time_s", "accel_x", "accel_y", "accel_z"], rows))
+
+    # nongrav_acceleration.csv
+    path = os.path.join(directory, "nongrav_acceleration.csv")
+    rows = ((t[i], nongrav[i, 0], nongrav[i, 1], nongrav[i, 2]) for i in range(len(t)))
+    saved.append(_write_csv(path, ["time_s", "nongrav_x", "nongrav_y", "nongrav_z"], rows))
+
+    # hemisphere_hits.csv
+    path = os.path.join(directory, "hemisphere_hits.csv")
+    rows = (
+        (lattice[i, 0], lattice[i, 1], lattice[i, 2], int(hit_counts[i]))
+        for i in range(len(lattice))
+    )
+    saved.append(_write_csv(path, ["lattice_x", "lattice_y", "lattice_z", "hit_count"], rows))
+
+    return saved
+
+
+def export_sweep_csv(result: SweepResult, path: str) -> str:
+    """Export sweep results to a CSV file.
+
+    Each row is one RPM combination with columns:
+      inner_rpm, outer_rpm, magnitude, distribution
+
+    Args:
+        result: SweepResult from a sweep run.
+        path: Output file path (should end in .csv).
+
+    Returns:
+        Absolute path of the written file.
+    """
+    rows = (
+        (
+            float(result.inner_rpms[i]),
+            float(result.outer_rpms[j]),
+            float(result.magnitudes[i, j]),
+            int(result.distributions[i, j]),
+        )
+        for i in range(len(result.inner_rpms))
+        for j in range(len(result.outer_rpms))
+    )
+    return _write_csv(path, ["inner_rpm", "outer_rpm", "magnitude", "distribution"], rows)

@@ -35,7 +35,17 @@ REM Prompt for duration
 set /p DURATION="Duration per simulation in seconds [3000]: "
 if "%DURATION%"=="" set DURATION=3000
 
-REM Prompt for output folder
+REM Prompt for output mode
+echo Output options:
+echo   1 - Save plots to files
+echo   2 - Show interactive plots
+echo.
+set /p MODE="Choose output mode [1]: "
+if "%MODE%"=="" set MODE=1
+
+if "%MODE%"=="2" goto interactive
+
+REM Save mode - prompt for output folder
 set /p OUTPUT="Output folder [output]: "
 if "%OUTPUT%"=="" set OUTPUT=output
 
@@ -59,6 +69,31 @@ echo Sweep complete!
 echo Check the "%OUTPUT%" folder for:
 echo   - sweep_heatmaps.png (visualization)
 echo   - sweep_results.xlsx (data table)
+echo   - sweep_results.csv (data table)
 echo ========================================
 echo.
+goto end
+
+:interactive
+echo.
+echo ========================================
+echo Running sweep with:
+echo   Inner frame RPM: %INNER_MIN% to %INNER_MAX%, step %INNER_STEP%
+echo   Outer frame RPM: %OUTER_MIN% to %OUTER_MAX%, step %OUTER_STEP%
+echo   Duration: %DURATION% seconds per simulation
+echo   Output: interactive plots
+echo ========================================
+echo.
+echo NOTE: This may take several minutes to complete.
+echo.
+
+clinostat-sim.exe sweep-cmd --inner-min %INNER_MIN% --inner-max %INNER_MAX% --inner-step %INNER_STEP% --outer-min %OUTER_MIN% --outer-max %OUTER_MAX% --outer-step %OUTER_STEP% --duration %DURATION%
+
+echo.
+echo ========================================
+echo Sweep complete!
+echo ========================================
+echo.
+
+:end
 pause

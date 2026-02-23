@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from app.engine import SimResult, SweepResult, compute_nongrav_accel, constant_rpm, simulate, sweep
-from app.export import export_sweep_xlsx
+from app.export import export_sim_csv, export_sweep_csv, export_sweep_xlsx
 from app.lattice import fibonacci_hemisphere
 from app.visualize import (
     plot_hemisphere_distribution,
@@ -76,6 +76,12 @@ def sim(inner, outer, duration, dt, save, radius):
     _save_or_show(fig5, save, "time_avg_gravitational.png")
     _save_or_show(fig6, save, "time_avg_nongravitational.png")
 
+    if save is not None:
+        click.echo("\nExporting CSV data...")
+        csv_paths = export_sim_csv(result.t, result.accel, nongrav, result.hit_counts, lattice, save)
+        for p in csv_paths:
+            click.echo(f"  Saved: {p}")
+
     if save is None:
         plt.show()
     else:
@@ -136,6 +142,12 @@ def sweep_cmd(inner_min, inner_max, inner_step, outer_min, outer_max, outer_step
     if xlsx_path is not None:
         saved = export_sweep_xlsx(result, xlsx_path)
         click.echo(f"\n  Saved XLSX: {saved}")
+
+    # Export CSV
+    if save is not None:
+        csv_path = os.path.join(save, "sweep_results.csv")
+        saved_csv = export_sweep_csv(result, csv_path)
+        click.echo(f"  Saved CSV:  {saved_csv}")
 
     click.echo("\nGenerating heatmaps...")
     fig = plot_sweep_heatmaps(result)
