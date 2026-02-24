@@ -112,10 +112,11 @@ def sweep_cmd(inner_min, inner_max, inner_step, outer_min, outer_max, outer_step
 
     def progress(current, total):
         pct = current / total * 100
-        sys.stdout.write(f"\r  Progress: {current}/{total} ({pct:.0f}%)")
-        sys.stdout.flush()
-        if current == total:
-            sys.stdout.write("\n")
+        if sys.stdout is not None:
+            sys.stdout.write(f"\r  Progress: {current}/{total} ({pct:.0f}%)")
+            sys.stdout.flush()
+            if current == total:
+                sys.stdout.write("\n")
 
     result = sweep(inner_rpms, outer_rpms, duration, dt, progress_callback=progress)
 

@@ -220,17 +220,16 @@ The `clinostat-sim.exe` file in the `dist` folder is completely standalone and c
 
 ### Advanced options
 
-**Reduce executable size** by excluding unnecessary modules:
-```powershell
-poetry run pyinstaller --onefile --name clinostat-sim --console --exclude-module tkinter app\__main__.py
-```
+**Note:** Do *not* use `--exclude-module tkinter` — matplotlib needs tkinter for
+interactive plot display (`plt.show()`). Excluding it causes:
+`UserWarning: FigureCanvasAgg is non-interactive, and thus cannot be shown`.
 
 **Add an icon** to the executable:
 ```powershell
 poetry run pyinstaller --onefile --name clinostat-sim --console --icon=icon.ico app\__main__.py
 ```
 
-**Hide console window** (not recommended for CLI apps, but useful for GUI wrappers):
+**Hide console window** (not recommended for CLI pps, but useful for GUI wrappers):
 ```powershell
 poetry run pyinstaller --onefile --name clinostat-sim --noconsole app\__main__.py
 ```
