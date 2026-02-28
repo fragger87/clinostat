@@ -4,10 +4,22 @@ from __future__ import annotations
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 from matplotlib.figure import Figure
 
 from app.engine import SweepResult
 from app.lattice import fibonacci_hemisphere
+
+
+class _Sci4Formatter(ticker.ScalarFormatter):
+    """ScalarFormatter that always uses scientific notation with up to 4 decimal places."""
+
+    def __init__(self):
+        super().__init__(useMathText=True)
+        self.set_powerlimits((0, 0))
+
+    def _set_format(self):
+        self.format = '%1.4f'
 
 
 def plot_trajectory_3d(accel: np.ndarray) -> Figure:
@@ -31,6 +43,8 @@ def plot_trajectory_3d(accel: np.ndarray) -> Figure:
     ax.set_ylabel("Y (m/s²)")
     ax.set_zlabel("Z (m/s²)")
     ax.set_title("Acceleration Vector Trajectory")
+    for a in (ax.xaxis, ax.yaxis, ax.zaxis):
+        a.set_major_formatter(_Sci4Formatter())
 
     # Draw reference sphere at radius g
     g = np.linalg.norm(accel[0])
@@ -124,6 +138,7 @@ def plot_time_series(t: np.ndarray, accel: np.ndarray) -> Figure:
     for i, (ax, label) in enumerate(zip(axes, labels)):
         ax.plot(ts, a[:, i], linewidth=0.4)
         ax.set_ylabel(f"{label} (m/s²)")
+        ax.yaxis.set_major_formatter(_Sci4Formatter())
         ax.grid(True, alpha=0.3)
 
     axes[-1].set_xlabel("Time (s)")
@@ -155,6 +170,7 @@ def _plot_time_avg_components(
             label=f"\u2016\u0101\u2016 (final: {running_mag[-1]:.6f})")
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Acceleration (m/s²)")
+    ax.yaxis.set_major_formatter(_Sci4Formatter())
     ax.set_title(title)
     ax.legend(fontsize=8)
     ax.grid(True, alpha=0.3)
@@ -217,6 +233,7 @@ def plot_time_averaged_acceleration(t: np.ndarray, accel: np.ndarray) -> Figure:
     ax.plot(ts, mag, linewidth=0.8)
     ax.set_xlabel("Time (s)")
     ax.set_ylabel("Acceleration (m/s²)")
+    ax.yaxis.set_major_formatter(_Sci4Formatter())
     ax.set_title("Time-Averaged Acceleration Magnitude")
     ax.axhline(y=running_mag[-1], color="r", linestyle="--", linewidth=0.8,
                label=f"Final: {running_mag[-1]:.4f} m/s²")
@@ -251,7 +268,7 @@ def plot_sweep_heatmaps(result: SweepResult) -> Figure:
             result.inner_rpms[-1],
         ],
     )
-    fig.colorbar(im1, ax=ax1, label="Magnitude (m/s²)")
+    fig.colorbar(im1, ax=ax1, label="Magnitude (m/s²)", format=_Sci4Formatter())
     ax1.set_xlabel("Outer RPM")
     ax1.set_ylabel("Inner RPM")
     ax1.set_title("Time-Averaged Acceleration Magnitude\n(lower = better)")
